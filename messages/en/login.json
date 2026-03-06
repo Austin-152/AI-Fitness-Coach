@@ -1,0 +1,15 @@
+{
+  "brand": "AI Fitness Coach",
+  "title": "Sign In",
+  "description": "Enter your email below to sign in to your account",
+  "email": "Email",
+  "emailPlaceholder": "m@example.com",
+  "password": "Password",
+  "loginButton": "Login",
+  "loggingIn": "Logging in...",
+  "noAccount": "Don't have an account?",
+  "signUp": "Sign up",
+  "defaultError": "An error occurred",
+  "unableToLogin": "Unable to login"
+}
+

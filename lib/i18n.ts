@@ -19,7 +19,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
             upload: (await import(`../messages/${resolvedLocale}/upload.json`)).default,
             header: (await import(`../messages/${resolvedLocale}/header.json`)).default,
             about:     (await import(`../messages/${resolvedLocale}/about.json`)).default,
-            contact:   (await import(`../messages/${resolvedLocale}/contact.json`)).default
+            contact:   (await import(`../messages/${resolvedLocale}/contact.json`)).default,
+            login:     (await import(`../messages/${resolvedLocale}/login.json`)).default
         }
     };
 });

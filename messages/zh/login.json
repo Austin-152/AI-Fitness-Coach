@@ -1,0 +1,15 @@
+{
+  "brand": "AI 健身教练",
+  "title": "登录",
+  "description": "在下方输入您的邮箱以登录账户",
+  "email": "邮箱",
+  "emailPlaceholder": "m@example.com",
+  "password": "密码",
+  "loginButton": "登录",
+  "loggingIn": "登录中...",
+  "noAccount": "还没有账户？",
+  "signUp": "注册",
+  "defaultError": "发生错误",
+  "unableToLogin": "无法登录"
+}
+

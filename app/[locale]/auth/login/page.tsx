@@ -12,8 +12,9 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Dumbbell } from 'lucide-react'
 
 export default function Page() {
@@ -22,6 +23,9 @@ export default function Page() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const params = useParams()
+  const locale = params.locale as string
+  const t = useTranslations('login')
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,12 +39,12 @@ export default function Page() {
         password,
       })
       if (error) {
-        setError(error.message ?? 'Unable to login')
+        setError(error.message ?? t('unableToLogin'))
         return
       }
       router.push('/')
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      setError(error instanceof Error ? error.message : t('defaultError'))
     } finally {
       setIsLoading(false)
     }
@@ -52,31 +56,29 @@ export default function Page() {
         <div className="flex flex-col gap-6">
           <div className="flex items-center justify-center gap-2">
             <Dumbbell className="h-8 w-8 text-primary" />
-            <span className="text-xl font-bold text-foreground">AI Fitness Coach</span>
+            <span className="text-xl font-bold text-foreground">{t('brand')}</span>
           </div>
           <Card>
             <CardHeader>
-              <CardTitle className="text-2xl">Sign In</CardTitle>
-              <CardDescription>
-                Enter your email below to sign in to your account
-              </CardDescription>
+              <CardTitle className="text-2xl">{t('title')}</CardTitle>
+              <CardDescription>{t('description')}</CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleLogin}>
                 <div className="flex flex-col gap-6">
                   <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('email')}</Label>
                     <Input
                       id="email"
                       type="email"
-                      placeholder="m@example.com"
+                      placeholder={t('emailPlaceholder')}
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                     />
                   </div>
                   <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">{t('password')}</Label>
                     <Input
                       id="password"
                       type="password"
@@ -87,16 +89,16 @@ export default function Page() {
                   </div>
                   {error && <p className="text-sm text-red-500">{error}</p>}
                   <Button type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? 'Logging in...' : 'Login'}
+                    {isLoading ? t('loggingIn') : t('loginButton')}
                   </Button>
                 </div>
                 <div className="mt-4 text-center text-sm">
-                  Don&apos;t have an account?{' '}
+                  {t('noAccount')}{' '}
                   <Link
-                    href="/app/[locale]/auth/sign-up"
+                    href={`/${locale}/auth/sign-up`}
                     className="underline underline-offset-4"
                   >
-                    Sign up
+                    {t('signUp')}
                   </Link>
                 </div>
               </form>
