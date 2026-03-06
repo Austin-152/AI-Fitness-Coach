@@ -211,7 +211,6 @@ export default function HomePage() {
         {/* Background Image */}
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
-          style={{ backgroundImage: "url('/images/meal-background.jpg')" }}
         />
         <div className="absolute inset-0 bg-gradient-to-l from-background/40 via-background/80 to-background" />
         

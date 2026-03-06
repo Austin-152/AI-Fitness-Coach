@@ -1,33 +1,41 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 
 interface NutrientProgressProps {
   label: string
   current: number
   target: number
   unit: string
-  color: string
+  textColorClass: string
+  indicatorColorClass: string
 }
 
-function NutrientProgress({ label, current, target, unit, color }: NutrientProgressProps) {
-  const percentage = Math.min((current / target) * 100, 100)
+function NutrientProgress({
+  label,
+  current,
+  target,
+  unit,
+  textColorClass,
+  indicatorColorClass,
+}: NutrientProgressProps) {
+  const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="font-semibold text-foreground">{label}</span>
         <span className="text-sm">
-          <span className={color}>{current}</span>
+          <span className={textColorClass}>{current}</span>
           <span className="text-muted-foreground"> / {target} {unit}</span>
         </span>
       </div>
-      <div className="h-2.5 w-full rounded-full bg-muted">
-        <div
-          className={`h-full rounded-full transition-all duration-500 ${color.replace("text-", "bg-")}`}
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+      <Progress
+        value={percentage}
+        className="h-2.5 bg-muted"
+        indicatorClassName={indicatorColorClass}
+      />
     </div>
   )
 }
@@ -53,28 +61,32 @@ export function NutritionProgress({
           current={calories.current}
           target={calories.target}
           unit="kcal"
-          color="text-chart-1"
+          textColorClass="text-chart-1"
+          indicatorColorClass="bg-chart-1"
         />
         <NutrientProgress
           label="Carbs"
           current={carbs.current}
           target={carbs.target}
           unit="g"
-          color="text-chart-2"
+          textColorClass="text-chart-2"
+          indicatorColorClass="bg-chart-2"
         />
         <NutrientProgress
           label="Protein"
           current={protein.current}
           target={protein.target}
           unit="g"
-          color="text-chart-3"
+          textColorClass="text-chart-3"
+          indicatorColorClass="bg-chart-3"
         />
         <NutrientProgress
           label="Fats"
           current={fats.current}
           target={fats.target}
           unit="g"
-          color="text-chart-4"
+          textColorClass="text-chart-4"
+          indicatorColorClass="bg-chart-4"
         />
       </CardContent>
     </Card>
