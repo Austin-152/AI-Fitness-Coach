@@ -7,8 +7,11 @@ import { NutritionProgress } from "@/components/nutrition-progress"
 import { MealUpload } from "@/components/meal-upload"
 import { AnalysisResult, FoodItem } from "@/components/analysis-result"
 import { createClient } from "@/lib/supabase/client"
+import { useTranslations } from "next-intl"
 
 export default function HomePage() {
+  //i18n setting
+  const t = useTranslations("Home")
   const router = useRouter()
   const [user, setUser] = useState<{ email: string } | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -102,7 +105,7 @@ export default function HomePage() {
 
       if (!response.ok) {
         console.error("Analysis failed:", response.status, response.statusText)
-        alert("Failed to analyze the meal. Please try again.")
+        alert(t("analysisFailed"))
         setUploadedImageUrl(null)
         return
       }
@@ -158,7 +161,7 @@ export default function HomePage() {
 
       if (mealError) {
         console.error("Error creating meal:", mealError)
-        alert("Failed to save the meal. Please try again.")
+        alert(t("saveFailed"))
         return
       }
 
@@ -229,10 +232,10 @@ export default function HomePage() {
         <div className="container relative mx-auto px-4 py-8">
           <div className="mb-8">
             <h1 className="text-3xl font-bold tracking-tight text-foreground text-balance">
-              Track Your Nutrition with AI Power
+              {t("title")}
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Monitor your daily intake and get personalized insights for a healthier lifestyle.
+              {t("subtitle")}
             </p>
           </div>
 

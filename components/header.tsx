@@ -12,6 +12,9 @@ interface HeaderProps {
 
 export function Header({ user, onSignOut }: HeaderProps) {
   const pathname = usePathname()
+  const firstSegment = pathname.split("/")[1]
+  const locale = ["en", "zh"].includes(firstSegment) ? firstSegment : "en"
+  const loginHref = `/${locale}/auth/login`
 
   const navItems = [
     { href: "/", label: "Home" },
@@ -51,7 +54,7 @@ export function Header({ user, onSignOut }: HeaderProps) {
               </Button>
             ) : (
               <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Link href="/auth/login">Sign In</Link>
+                <Link href={loginHref}>Sign In</Link>
               </Button>
             )}
           </div>
