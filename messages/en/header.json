@@ -1,0 +1,11 @@
+{
+  "brand": "AI Fitness Coach",
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact"
+  },
+  "signOut": "Sign Out",
+  "signIn": "Sign In"
+}
+

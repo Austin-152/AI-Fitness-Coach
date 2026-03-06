@@ -1,0 +1,28 @@
+{
+  "title": "About AI Fitness Coach",
+  "subtitle": "Your intelligent companion for nutrition tracking and healthier eating habits.",
+  "features": {
+    "photoRecognition": {
+      "title": "Photo Recognition",
+      "description": "Simply snap a photo of your meal and our AI will identify all the foods automatically."
+    },
+    "aiAnalysis": {
+      "title": "AI-Powered Analysis",
+      "description": "Advanced machine learning algorithms estimate calories and macronutrients with high accuracy."
+    },
+    "progressTracking": {
+      "title": "Progress Tracking",
+      "description": "Monitor your daily, weekly, and monthly nutrition trends to stay on track with your goals."
+    },
+    "personalizedInsights": {
+      "title": "Personalized Insights",
+      "description": "Get customized recommendations based on your dietary preferences and fitness objectives."
+    }
+  },
+  "mission": {
+    "title": "Our Mission",
+    "paragraph1": "At AI Fitness Coach, we believe that tracking your nutrition should be effortless. Our mission is to leverage cutting-edge AI technology to help you understand what you eat, make informed dietary choices, and achieve your health and fitness goals without the hassle of manual food logging.",
+    "paragraph2": "Whether you are trying to lose weight, build muscle, or simply maintain a balanced diet, our intelligent system adapts to your needs and provides personalized guidance every step of the way."
+  }
+}
+

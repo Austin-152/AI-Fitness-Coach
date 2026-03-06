@@ -1,0 +1,40 @@
+{
+  "title": "联系我们",
+  "subtitle": "有疑问或反馈？我们很乐意听取您的意见。",
+  "email": {
+    "label": "邮箱",
+    "value": "support@aifitnesscoach.com"
+  },
+  "phone": {
+    "label": "电话",
+    "value": "+1 (555) 123-4567"
+  },
+  "address": {
+    "label": "地址",
+    "line1": "健身街 123 号",
+    "line2": "美国加利福尼亚州旧金山 94102"
+  },
+  "form": {
+    "title": "给我们发送消息",
+    "description": "填写下方表单，我们将尽快回复您。",
+    "name": {
+      "label": "姓名",
+      "placeholder": "您的姓名"
+    },
+    "email": {
+      "label": "邮箱",
+      "placeholder": "your@email.com"
+    },
+    "message": {
+      "label": "消息",
+      "placeholder": "我们能为您做什么？"
+    },
+    "submit": "发送消息",
+    "submitting": "发送中..."
+  },
+  "success": {
+    "title": "感谢您的留言！",
+    "description": "我们将在 24 小时内回复您。"
+  }
+}
+

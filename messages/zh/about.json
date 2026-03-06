@@ -1,0 +1,28 @@
+{
+  "title": "关于 AI 健身教练",
+  "subtitle": "您的智能营养追踪与健康饮食习惯伴侣。",
+  "features": {
+    "photoRecognition": {
+      "title": "照片识别",
+      "description": "只需拍下您的餐食照片，我们的 AI 将自动识别所有食物。"
+    },
+    "aiAnalysis": {
+      "title": "AI 驱动分析",
+      "description": "先进的机器学习算法以高准确度估算卡路里及宏量营养素。"
+    },
+    "progressTracking": {
+      "title": "进度追踪",
+      "description": "监控每日、每周和每月的营养趋势，助您保持目标。"
+    },
+    "personalizedInsights": {
+      "title": "个性化建议",
+      "description": "根据您的饮食偏好和健身目标，获取定制化的营养建议。"
+    }
+  },
+  "mission": {
+    "title": "我们的使命",
+    "paragraph1": "在 AI 健身教练，我们相信追踪营养摄入应该毫不费力。我们的使命是利用前沿 AI 技术帮助您了解饮食内容、做出明智的饮食选择，并在无需繁琐手动记录的情况下实现健康与健身目标。",
+    "paragraph2": "无论您是想减重、增肌，还是只是维持均衡饮食，我们的智能系统都会根据您的需求进行调整，并在每一步提供个性化指导。"
+  }
+}
+

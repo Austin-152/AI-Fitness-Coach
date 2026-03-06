@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl"
 
 export default function HomePage() {
   //i18n setting
-  const t = useTranslations("Home")
+  const t = useTranslations("home")
   const router = useRouter()
   const [user, setUser] = useState<{ email: string } | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)

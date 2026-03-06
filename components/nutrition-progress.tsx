@@ -1,5 +1,6 @@
 "use client"
 
+import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 
@@ -53,38 +54,40 @@ export function NutritionProgress({
   protein,
   fats,
 }: NutritionProgressProps) {
+  const t = useTranslations("nutrition")
+
   return (
     <Card className="border shadow-sm">
       <CardContent className="space-y-6 p-6">
         <NutrientProgress
-          label="Total Calories"
+          label={t("totalCalories")}
           current={calories.current}
           target={calories.target}
-          unit="kcal"
+          unit={t("kcal")}
           textColorClass="text-chart-1"
           indicatorColorClass="bg-chart-1"
         />
         <NutrientProgress
-          label="Carbs"
+          label={t("carbs")}
           current={carbs.current}
           target={carbs.target}
-          unit="g"
+          unit={t("g")}
           textColorClass="text-chart-2"
           indicatorColorClass="bg-chart-2"
         />
         <NutrientProgress
-          label="Protein"
+          label={t("protein")}
           current={protein.current}
           target={protein.target}
-          unit="g"
+          unit={t("g")}
           textColorClass="text-chart-3"
           indicatorColorClass="bg-chart-3"
         />
         <NutrientProgress
-          label="Fats"
+          label={t("fats")}
           current={fats.current}
           target={fats.target}
-          unit="g"
+          unit={t("g")}
           textColorClass="text-chart-4"
           indicatorColorClass="bg-chart-4"
         />

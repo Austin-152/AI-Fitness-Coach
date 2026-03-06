@@ -8,18 +8,17 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Mail, MapPin, Phone } from "lucide-react"
+import { useTranslations } from "next-intl"
 
 export default function ContactPage() {
+  const t = useTranslations("contact")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    
-    // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000))
-    
     setIsSubmitting(false)
     setSubmitted(true)
   }
@@ -27,14 +26,14 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl text-center">
           <h1 className="text-4xl font-bold tracking-tight text-foreground">
-            Contact Us
+            {t("title")}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Have questions or feedback? We would love to hear from you.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -46,8 +45,8 @@ export default function ContactPage() {
                   <Mail className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Email</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">support@aifitnesscoach.com</p>
+                  <h3 className="font-semibold text-foreground">{t("email.label")}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t("email.value")}</p>
                 </div>
               </CardContent>
             </Card>
@@ -58,8 +57,8 @@ export default function ContactPage() {
                   <Phone className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Phone</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">+1 (555) 123-4567</p>
+                  <h3 className="font-semibold text-foreground">{t("phone.label")}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{t("phone.value")}</p>
                 </div>
               </CardContent>
             </Card>
@@ -70,10 +69,10 @@ export default function ContactPage() {
                   <MapPin className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-foreground">Address</h3>
+                  <h3 className="font-semibold text-foreground">{t("address.label")}</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    123 Fitness Street<br />
-                    San Francisco, CA 94102
+                    {t("address.line1")}<br />
+                    {t("address.line2")}
                   </p>
                 </div>
               </CardContent>
@@ -82,34 +81,34 @@ export default function ContactPage() {
 
           <Card className="border shadow-sm">
             <CardHeader>
-              <CardTitle>Send us a message</CardTitle>
+              <CardTitle>{t("form.title")}</CardTitle>
               <CardDescription>
-                Fill out the form below and we will get back to you as soon as possible.
+                {t("form.description")}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {submitted ? (
                 <div className="rounded-lg bg-primary/10 p-6 text-center">
-                  <p className="font-semibold text-primary">Thank you for your message!</p>
+                  <p className="font-semibold text-primary">{t("success.title")}</p>
                   <p className="mt-2 text-sm text-muted-foreground">
-                    We will get back to you within 24 hours.
+                    {t("success.description")}
                   </p>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" placeholder="Your name" required />
+                    <Label htmlFor="name">{t("form.name.label")}</Label>
+                    <Input id="name" placeholder={t("form.name.placeholder")} required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="your@email.com" required />
+                    <Label htmlFor="email">{t("form.email.label")}</Label>
+                    <Input id="email" type="email" placeholder={t("form.email.placeholder")} required />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
+                    <Label htmlFor="message">{t("form.message.label")}</Label>
                     <Textarea
                       id="message"
-                      placeholder="How can we help you?"
+                      placeholder={t("form.message.placeholder")}
                       rows={4}
                       required
                     />
@@ -119,7 +118,7 @@ export default function ContactPage() {
                     className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Sending..." : "Send Message"}
+                    {isSubmitting ? t("form.submitting") : t("form.submit")}
                   </Button>
                 </form>
               )}

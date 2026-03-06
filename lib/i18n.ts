@@ -14,7 +14,12 @@ export default getRequestConfig(async ({ requestLocale }) => {
     return {
         locale: resolvedLocale,
         messages: {
-            Home: (await import(`../messages/${resolvedLocale}/home.json`)).default
+            home: (await import(`../messages/${resolvedLocale}/home.json`)).default,
+            nutrition: (await import(`../messages/${resolvedLocale}/nutrition.json`)).default,
+            upload: (await import(`../messages/${resolvedLocale}/upload.json`)).default,
+            header: (await import(`../messages/${resolvedLocale}/header.json`)).default,
+            about:     (await import(`../messages/${resolvedLocale}/about.json`)).default,
+            contact:   (await import(`../messages/${resolvedLocale}/contact.json`)).default
         }
     };
 });
