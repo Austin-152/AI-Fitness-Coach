@@ -1,0 +1,27 @@
+{
+  "title": "营养目标",
+  "subtitle": "设定你的每日营养摄入目标",
+  "caloriesFirst": "热量优先",
+  "macrosFirst": "宏量营养素优先",
+  "caloriesFirstDesc": "设定每日热量目标，按比例分配宏量营养素",
+  "macrosFirstDesc": "直接设定宏量营养素目标，自动计算总热量",
+  "dailyCalories": "每日热量目标",
+  "caloriesUnit": "千卡 / 天",
+  "macroDistribution": "宏量营养素比例",
+  "carbs": "碳水化合物",
+  "protein": "蛋白质",
+  "fats": "脂肪",
+  "fatsPercent": "脂肪（自动计算）",
+  "calculated": "计算结果",
+  "formula": "碳水 & 蛋白质 = 4 千卡/克 · 脂肪 = 9 千卡/克",
+  "gUnit": "克",
+  "kcalUnit": "千卡",
+  "macroTargets": "宏量营养素目标",
+  "totalCalories": "总热量",
+  "save": "保存目标",
+  "saving": "保存中…",
+  "saveSuccess": "目标已成功保存！",
+  "saveError": "保存失败，请重试。",
+  "loginRequired": "请先登录再保存目标。"
+}
+

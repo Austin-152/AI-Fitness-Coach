@@ -20,6 +20,7 @@ export function Header({ user, onSignOut }: HeaderProps) {
 
   const navItems = [
     { href: `/${locale}`, label: t("nav.home") },
+    { href: `/${locale}/goals`, label: t("nav.goals") },
     { href: `/${locale}/about`, label: t("nav.about") },
     { href: `/${locale}/contact`, label: t("nav.contact") },
   ]

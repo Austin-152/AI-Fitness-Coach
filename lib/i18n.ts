@@ -20,7 +20,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
             header: (await import(`../messages/${resolvedLocale}/header.json`)).default,
             about:     (await import(`../messages/${resolvedLocale}/about.json`)).default,
             contact:   (await import(`../messages/${resolvedLocale}/contact.json`)).default,
-            login:     (await import(`../messages/${resolvedLocale}/login.json`)).default
+            login:     (await import(`../messages/${resolvedLocale}/login.json`)).default,
+            goals:     (await import(`../messages/${resolvedLocale}/goals.json`)).default
         }
     };
 });

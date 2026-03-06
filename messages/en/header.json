@@ -3,7 +3,8 @@
   "nav": {
     "home": "Home",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "goals": "Goals"
   },
   "signOut": "Sign Out",
   "signIn": "Sign In"

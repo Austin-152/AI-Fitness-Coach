@@ -1,0 +1,27 @@
+{
+  "title": "Nutrition Goals",
+  "subtitle": "Set your daily nutrition intake targets",
+  "caloriesFirst": "Calories-First",
+  "macrosFirst": "Macros-First",
+  "caloriesFirstDesc": "Set daily calories and distribute macros by percentage",
+  "macrosFirstDesc": "Set macros directly — calories are calculated automatically",
+  "dailyCalories": "Daily Calories",
+  "caloriesUnit": "kcal / day",
+  "macroDistribution": "Macro Distribution",
+  "carbs": "Carbs",
+  "protein": "Protein",
+  "fats": "Fats",
+  "fatsPercent": "Fats (auto-calculated)",
+  "calculated": "Calculated Macros",
+  "formula": "Carbs & Protein = 4 kcal/g · Fats = 9 kcal/g",
+  "gUnit": "g",
+  "kcalUnit": "kcal",
+  "macroTargets": "Macro Targets",
+  "totalCalories": "Total Calories",
+  "save": "Save Goals",
+  "saving": "Saving…",
+  "saveSuccess": "Goals saved successfully!",
+  "saveError": "Failed to save goals. Please try again.",
+  "loginRequired": "Please sign in to save your goals."
+}
+

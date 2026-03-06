@@ -3,7 +3,8 @@
   "nav": {
     "home": "首页",
     "about": "关于",
-    "contact": "联系我们"
+    "contact": "联系我们",
+    "goals": "目标"
   },
   "signOut": "退出登录",
   "signIn": "登录"
