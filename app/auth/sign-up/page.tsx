@@ -46,7 +46,10 @@ export default function Page() {
             `${window.location.origin}/`,
         },
       })
-      if (error) throw error
+      if (error) {
+        setError(error.message ?? 'Failed to create an account')
+        return
+      }
       router.push('/auth/sign-up-success')
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred')

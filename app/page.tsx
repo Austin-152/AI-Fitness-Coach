@@ -101,8 +101,12 @@ export default function HomePage() {
       })
 
       if (!response.ok) {
-        throw new Error("Analysis failed")
+        console.error("Analysis failed:", response.status, response.statusText)
+        alert("Failed to analyze the meal. Please try again.")
+        setUploadedImageUrl(null)
+        return
       }
+
 
       const data = await response.json()
       setAnalysisResult(data.foods)
@@ -152,7 +156,11 @@ export default function HomePage() {
         .select()
         .single()
 
-      if (mealError) throw mealError
+      if (mealError) {
+        console.error("Error creating meal:", mealError)
+        alert("Failed to save the meal. Please try again.")
+        return
+      }
 
       // Insert food items
       const foodsToInsert = analysisResult.map((food) => ({
@@ -169,7 +177,11 @@ export default function HomePage() {
         .from("foods")
         .insert(foodsToInsert)
 
-      if (foodsError) throw foodsError
+      if (foodsError) {
+        console.error("Error inserting foods:", foodsError)
+        alert("Failed to save the meal. Please try again.")
+        return
+      }
 
       // Update local nutrition state
       const totals = analysisResult.reduce(
@@ -212,7 +224,7 @@ export default function HomePage() {
         <div 
           className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-background/40 via-background/80 to-background" />
+        <div className="absolute inset-0 bg-linear-to-l from-background/40 via-background/80 to-background" />
         
         <div className="container relative mx-auto px-4 py-8">
           <div className="mb-8">
