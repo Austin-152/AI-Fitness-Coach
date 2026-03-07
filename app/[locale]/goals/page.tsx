@@ -1,20 +1,15 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Header } from '@/components/header'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { createClient } from '@/lib/supabase/client'
 import { useTranslations } from 'next-intl'
 import { CaloriesFirstPanel } from '@/components/calories-first-panel'
 import { MacrosFirstPanel } from '@/components/macros-first-panel'
 
 export default function GoalsPage() {
   const t = useTranslations('goals')
-  const router = useRouter()
-  const [user, setUser] = useState<{ email: string } | null>(null)
   const [isMacrosFirst, setIsMacrosFirst] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -27,50 +22,51 @@ export default function GoalsPage() {
   const [proteinGrams, setProteinGrams] = useState(150)
   const [fatsGrams, setFatsGrams] = useState(60)
 
-  const supabase = createClient()
 
 
   useEffect(() => {
     const init = async () => {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      if (!authUser?.email) return
-      setUser({ email: authUser.email })
+      try {
+        const res = await fetch('/api/nutrition-target')
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('daily_calorie_target, daily_carbs_target, daily_protein_target, daily_fats_target')
-        .eq('id', authUser.id)
-        .single()
+        if (!res.ok) return
 
-      if (profile) {
-        const cal = profile.daily_calorie_target ?? 2000
-        const cg  = profile.daily_carbs_target   ?? 200
-        const pg  = profile.daily_protein_target  ?? 150
-        const fg  = profile.daily_fats_target     ?? 60
+        const data = await res.json()
+
+        if (!data) return
+
+        const cal = data.daily_calories ?? 2000
+        const cg  = data.carbs_target_g ?? 200
+        const pg  = data.protein_target_g ?? 150
+        const fg  = data.fat_target_g ?? 60
 
         setDailyCalories(cal)
         setCarbsGrams(cg)
         setProteinGrams(pg)
         setFatsGrams(fg)
 
-        const cCal = cg * 4, pCal = pg * 4, fCal = fg * 9
+        const cCal = cg * 4
+        const pCal = pg * 4
+        const fCal = fg * 9
+
         const total = cCal + pCal + fCal
+
         if (total > 0) {
           const cp = Math.round((cCal / total) * 100)
           const pp = Math.round((pCal / total) * 100)
+
           setCarbsPercent(cp)
           setProteinPercent(Math.min(pp, 100 - cp))
         }
+
+      } catch (err) {
+        console.error("Failed to load nutrition target", err)
       }
     }
+
     init()
   }, [])
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    router.refresh()
-  }
 
   const handleCarbsPercentChange = (val: number[]) => {
     const v = val[0]
@@ -121,7 +117,6 @@ export default function GoalsPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header user={user} onSignOut={handleSignOut} />
 
       <main className="container mx-auto px-6 py-8">
 

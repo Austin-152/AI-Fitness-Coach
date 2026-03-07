@@ -1,6 +1,5 @@
 "use client"
 
-import { Header } from "@/components/header"
 import { Card, CardContent } from "@/components/ui/card"
 import { Brain, Camera, TrendingUp, Utensils } from "lucide-react"
 import { useTranslations } from "next-intl"
@@ -13,7 +12,6 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl text-center">

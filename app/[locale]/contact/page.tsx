@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { Header } from "@/components/header"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -25,7 +24,6 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
 
       <main className="container mx-auto px-4 py-12">
         <div className="mx-auto max-w-3xl text-center">

@@ -12,7 +12,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Dumbbell } from 'lucide-react'
@@ -22,7 +22,6 @@ export default function Page() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
   const params = useParams()
   const locale = params.locale as string
   const t = useTranslations('login')
@@ -42,7 +41,7 @@ export default function Page() {
         setError(error.message ?? t('unableToLogin'))
         return
       }
-      router.push('/')
+      window.location.href = `/${locale}`
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : t('defaultError'))
     } finally {

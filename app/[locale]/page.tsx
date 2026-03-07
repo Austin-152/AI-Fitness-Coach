@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Header } from "@/components/header"
 import { NutritionProgress } from "@/components/nutrition-progress"
 import { MealUpload } from "@/components/meal-upload"
 import { AnalysisResult, FoodItem } from "@/components/analysis-result"
@@ -70,11 +69,6 @@ export default function HomePage() {
     }
   }
 
-  const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-    router.refresh()
-  }
 
   const handleUpload = async (file: File) => {
     if (!user) {
@@ -220,8 +214,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header user={user} onSignOut={handleSignOut} />
-      
       <main className="relative">
         {/* Background Image */}
         <div 

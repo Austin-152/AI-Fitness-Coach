@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { NextIntlClientProvider } from "next-intl";
+import { createClient } from "@/lib/supabase/server";
+import { Header } from "@/components/header";
 
 import "../globals.css";
 
-const geist = Geist({ subsets: ["latin"] });
-const geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
     title: "AI Fitness Coach - 智能健身教练",
@@ -39,10 +38,16 @@ export default async function RootLayout({
 }) {
     const { locale } = await params;
 
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     return (
         <html lang={locale}>
         <body className={`font-sans antialiased`}>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+            <Header user={user ? { email: user.email! } : null} />
+            {children}
+        </NextIntlClientProvider>
         <Analytics />
         </body>
         </html>

@@ -7,16 +7,21 @@ import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 
 interface HeaderProps {
-  user?: { email: string } | null
-  onSignOut?: () => void
+  user: { email: string } | null
 }
 
-export function Header({ user, onSignOut }: HeaderProps) {
+export function Header({ user }: HeaderProps) {
   const t = useTranslations("header")
   const pathname = usePathname()
+
   const firstSegment = pathname.split("/")[1]
   const locale = ["en", "zh"].includes(firstSegment) ? firstSegment : "en"
   const loginHref = `/${locale}/auth/login`
+
+  const handleSignOut = async () => {
+    await fetch("/api/signout", { method: "POST" })
+    window.location.href = `/${locale}`
+  }
 
   const navItems = [
     { href: `/${locale}`, label: t("nav.home") },
@@ -52,7 +57,7 @@ export function Header({ user, onSignOut }: HeaderProps) {
 
           <div className="flex items-center gap-4">
             {user ? (
-              <Button variant="outline" onClick={onSignOut}>
+              <Button variant="outline" onClick={handleSignOut}>
                 {t("signOut")}
               </Button>
             ) : (
