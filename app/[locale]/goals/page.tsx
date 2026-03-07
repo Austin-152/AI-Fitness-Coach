@@ -88,22 +88,31 @@ export default function GoalsPage() {
     setSaveStatus('idle')
     setIsSaving(true)
     try {
-      const { data: { user: authUser } } = await supabase.auth.getUser()
-      if (!authUser) { setSaveStatus('error'); return }
-
       const fatsPercent  = Math.max(0, 100 - carbsPercent - proteinPercent)
       const calcCarbs    = Math.round((dailyCalories * carbsPercent)   / 100 / 4)
       const calcProtein  = Math.round((dailyCalories * proteinPercent) / 100 / 4)
       const calcFats     = Math.round((dailyCalories * fatsPercent)    / 100 / 9)
       const calcCalories = Math.round(carbsGrams * 4 + proteinGrams * 4 + fatsGrams * 9)
 
-      const payload = isMacrosFirst
-        ? { id: authUser.id, daily_calorie_target: calcCalories, daily_carbs_target: carbsGrams, daily_protein_target: proteinGrams, daily_fats_target: fatsGrams }
-        : { id: authUser.id, daily_calorie_target: dailyCalories, daily_carbs_target: calcCarbs, daily_protein_target: calcProtein, daily_fats_target: calcFats }
+      const body = isMacrosFirst
+        ? { daily_calories: calcCalories, carbs_target_g: carbsGrams, protein_target_g: proteinGrams, fat_target_g: fatsGrams }
+        : { daily_calories: dailyCalories, carbs_target_g: calcCarbs, protein_target_g: calcProtein, fat_target_g: calcFats }
 
-      const { error } = await supabase.from('profiles').upsert(payload)
-      setSaveStatus(error ? 'error' : 'success')
-    } catch {
+      const res = await fetch('/api/nutrition-target', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null)
+        console.error('Failed to save nutrition target:', errData ?? res.statusText)
+        setSaveStatus('error')
+      } else {
+        setSaveStatus('success')
+      }
+    } catch (err) {
+      console.error('Unexpected error saving nutrition target:', err)
       setSaveStatus('error')
     } finally {
       setIsSaving(false)
