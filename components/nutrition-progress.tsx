@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl"
 import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface NutrientProgressProps {
   label: string
@@ -11,6 +12,7 @@ interface NutrientProgressProps {
   unit: string
   textColorClass: string
   indicatorColorClass: string
+  isLoadingTarget?: boolean
 }
 
 function NutrientProgress({
@@ -20,6 +22,7 @@ function NutrientProgress({
   unit,
   textColorClass,
   indicatorColorClass,
+  isLoadingTarget,
 }: NutrientProgressProps) {
   const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0
 
@@ -27,9 +30,14 @@ function NutrientProgress({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <span className="font-semibold text-foreground">{label}</span>
-        <span className="text-sm">
+        <span className="text-sm flex items-center gap-1">
           <span className={textColorClass}>{current}</span>
-          <span className="text-muted-foreground"> / {target} {unit}</span>
+          <span className="text-muted-foreground"> / </span>
+          {isLoadingTarget ? (
+            <Skeleton className="inline-block h-4 w-10 align-middle" />
+          ) : (
+            <span className="text-muted-foreground">{target} {unit}</span>
+          )}
         </span>
       </div>
       <Progress
@@ -46,6 +54,7 @@ interface NutritionProgressProps {
   carbs: { current: number; target: number }
   protein: { current: number; target: number }
   fats: { current: number; target: number }
+  isLoadingTargets?: boolean
 }
 
 export function NutritionProgress({
@@ -53,6 +62,7 @@ export function NutritionProgress({
   carbs,
   protein,
   fats,
+  isLoadingTargets,
 }: NutritionProgressProps) {
   const t = useTranslations("nutrition")
 
@@ -66,6 +76,7 @@ export function NutritionProgress({
           unit={t("kcal")}
           textColorClass="text-chart-1"
           indicatorColorClass="bg-chart-1"
+          isLoadingTarget={isLoadingTargets}
         />
         <NutrientProgress
           label={t("carbs")}
@@ -74,6 +85,7 @@ export function NutritionProgress({
           unit={t("g")}
           textColorClass="text-chart-2"
           indicatorColorClass="bg-chart-2"
+          isLoadingTarget={isLoadingTargets}
         />
         <NutrientProgress
           label={t("protein")}
@@ -82,6 +94,7 @@ export function NutritionProgress({
           unit={t("g")}
           textColorClass="text-chart-3"
           indicatorColorClass="bg-chart-3"
+          isLoadingTarget={isLoadingTargets}
         />
         <NutrientProgress
           label={t("fats")}
@@ -90,6 +103,7 @@ export function NutritionProgress({
           unit={t("g")}
           textColorClass="text-chart-4"
           indicatorColorClass="bg-chart-4"
+          isLoadingTarget={isLoadingTargets}
         />
       </CardContent>
     </Card>

@@ -16,14 +16,44 @@ export default function HomePage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<FoodItem[] | null>(null)
   const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
-  const [nutrition, setNutrition] = useState({
-    calories: { current: 1850, target: 2200 },
-    carbs: { current: 180, target: 250 },
-    protein: { current: 90, target: 120 },
-    fats: { current: 50, target: 70 },
+  const [currentIntake, setCurrentIntake] = useState({
+    calories: 0,
+    carbs: 0,
+    protein: 0,
+    fats: 0,
   })
+  const [targets, setTargets] = useState({
+    calories: 0,
+    carbs: 0,
+    protein: 0,
+    fats: 0,
+  })
+  const [isLoadingTargets, setIsLoadingTargets] = useState(true)
 
   const supabase = createClient()
+
+  // Fetch nutrition targets independently so only the target numbers update
+  useEffect(() => {
+    const fetchTargets = async () => {
+      try {
+        const res = await fetch("/api/nutrition-target")
+        if (res.ok) {
+          const data = await res.json()
+          setTargets({
+            calories: data.daily_calories ?? 0,
+            carbs: data.carbs_target_g ?? 0,
+            protein: data.protein_target_g ?? 0,
+            fats: data.fat_target_g ?? 0,
+          })
+        }
+      } catch (e) {
+        console.error("Failed to fetch nutrition targets:", e)
+      } finally {
+        setIsLoadingTargets(false)
+      }
+    }
+    fetchTargets()
+  }, [])
 
   useEffect(() => {
     const getUser = async () => {
@@ -60,11 +90,11 @@ export default function HomePage() {
         })
       })
 
-      setNutrition({
-        calories: { current: totalCalories, target: 2200 },
-        carbs: { current: totalCarbs, target: 250 },
-        protein: { current: totalProtein, target: 120 },
-        fats: { current: totalFats, target: 70 },
+      setCurrentIntake({
+        calories: totalCalories,
+        carbs: totalCarbs,
+        protein: totalProtein,
+        fats: totalFats,
       })
     }
   }
@@ -191,11 +221,11 @@ export default function HomePage() {
         { calories: 0, carbs: 0, protein: 0, fats: 0 }
       )
 
-      setNutrition((prev) => ({
-        calories: { ...prev.calories, current: prev.calories.current + totals.calories },
-        carbs: { ...prev.carbs, current: prev.carbs.current + totals.carbs },
-        protein: { ...prev.protein, current: prev.protein.current + totals.protein },
-        fats: { ...prev.fats, current: prev.fats.current + totals.fats },
+      setCurrentIntake((prev) => ({
+        calories: prev.calories + totals.calories,
+        carbs: prev.carbs + totals.carbs,
+        protein: prev.protein + totals.protein,
+        fats: prev.fats + totals.fats,
       }))
 
       // Clear analysis result
@@ -232,7 +262,13 @@ export default function HomePage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <NutritionProgress {...nutrition} />
+            <NutritionProgress
+              calories={{ current: currentIntake.calories, target: targets.calories }}
+              carbs={{ current: currentIntake.carbs, target: targets.carbs }}
+              protein={{ current: currentIntake.protein, target: targets.protein }}
+              fats={{ current: currentIntake.fats, target: targets.fats }}
+              isLoadingTargets={isLoadingTargets}
+            />
             
             {analysisResult ? (
               <AnalysisResult
