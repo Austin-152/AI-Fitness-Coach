@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server"
 import { GoogleGenAI } from "@google/genai"
 
-// 1MB
-const MAX_IMAGE_SIZE = 1_000_000
+// 最大允许的原始图片字节（建议 5MB，演示项目可以调小到 1MB）
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024 // 5MB
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
@@ -11,33 +11,60 @@ export async function POST(req: Request) {
     const { image, locale } = await req.json()
 
     if (!image) {
+      return NextResponse.json({ error: "Image is required" }, { status: 400 })
+    }
+
+    // 从 data URL 中提取 mimeType 和 base64 数据
+    // 支持两种情况：data:<mime>;base64,<data> 或 直接 base64 字符串
+    const dataUrlMatch = String(image).match(/^data:([^;]+);base64,(.+)$/)
+    const mimeType = dataUrlMatch ? dataUrlMatch[1] : "image/jpeg"
+    let base64Data = dataUrlMatch ? dataUrlMatch[2] : String(image)
+
+    // 去掉可能的换行/空白
+    base64Data = base64Data.replace(/\s/g, "")
+
+    // MIME 校验（防止 .exe/.zip 等伪装）
+    if (!mimeType.startsWith("image/")) {
       return NextResponse.json(
-          { error: "Image is required" },
-          { status: 400 }
+          { error: "Unsupported media type" },
+          { status: 415 }
       )
     }
 
-    // 1️⃣ 防止 Base64 过大
-    const size = Buffer.byteLength(image, "utf8")
-
-    if (size > MAX_IMAGE_SIZE) {
+    // 可选：严格限制只允许常见图片类型
+    const allowed = /^(image\/jpeg|image\/png|image\/webp)$/
+    if (!allowed.test(mimeType)) {
       return NextResponse.json(
-          { error: "Image too large. Please compress below 1MB." },
+          { error: "Only jpeg/png/webp are allowed" },
+          { status: 415 }
+      )
+    }
+
+    // 用 Base64 长度计算解码后字节数（无需解码到 Buffer，内存友好）
+    // 公式：decodedBytes = (3 * (base64Len / 4)) - padding
+    const base64Len = base64Data.length
+    let padding = 0
+    if (base64Data.endsWith("==")) padding = 2
+    else if (base64Data.endsWith("=")) padding = 1
+
+    const decodedBytes = Math.floor((3 * (base64Len / 4))) - padding
+
+    if (decodedBytes > MAX_IMAGE_BYTES) {
+      return NextResponse.json(
+          { error: `Image too large. Please provide an image under ${Math.round(MAX_IMAGE_BYTES / (1024 * 1024))}MB.` },
           { status: 413 }
       )
     }
 
-    // 从 data URL 中提取 mimeType 和 base64 数据
-    // 格式: data:<mimeType>;base64,<data>
-    const dataUrlMatch = image.match(/^data:([^;]+);base64,(.+)$/)
-    const mimeType = dataUrlMatch ? dataUrlMatch[1] : "image/jpeg"
-    const base64Data = dataUrlMatch ? dataUrlMatch[2] : image
+    // （可选替代）如果你愿意并且文件不大，也可以解码后检查实际 Buffer 长度：
+    // const decodedBufferLength = Buffer.from(base64Data, "base64").length
+    // if (decodedBufferLength > MAX_IMAGE_BYTES) { ... }
 
-    // 2️⃣ 调用 Gemini
+    // 调用 Gemini（保持你原有的 prompt 逻辑）
     const dishLanguageInstruction =
-      locale === "zh"
-        ? 'The "dish" field MUST be written in Simplified Chinese (简体中文).'
-        : 'The "dish" field MUST be written in English.'
+        locale === "zh"
+            ? 'The "dish" field MUST be written in Simplified Chinese (简体中文).'
+            : 'The "dish" field MUST be written in English.'
 
     const geminiResponse = await ai.models.generateContent({
       model: "gemini-2.5-flash-lite",
@@ -85,26 +112,22 @@ export async function POST(req: Request) {
     let content = geminiResponse.text
 
     if (!content) {
-      throw new Error("AI returned empty response")
+      return NextResponse.json({ error: "AI returned empty response" }, { status: 500 })
     }
 
     // 强制 JSON 解析（防 hallucination）
     let parsed
-
     try {
       parsed = JSON.parse(content)
     } catch {
       // 尝试提取 JSON
-      const match = content.match(/\{[\s\S]*\}/)
-
+      const match = content.match(/\{[\s\S]*}/)
       if (!match) {
-        throw new Error("Invalid JSON from AI")
+        return NextResponse.json({ error: "Invalid JSON from AI" }, { status: 500 })
       }
-
       parsed = JSON.parse(match[0])
     }
 
-    // 统一转换为前端 FoodItem[] 格式
     const foods = [
       {
         name: parsed.dish ?? "Unknown dish",
@@ -119,10 +142,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ foods })
   } catch (error) {
     console.error("AI analyze error:", error)
-
-    return NextResponse.json(
-        { error: "AI analysis failed" },
-        { status: 500 }
-    )
+    return NextResponse.json({ error: "AI analysis failed" }, { status: 500 })
   }
 }
