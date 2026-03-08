@@ -16,7 +16,6 @@ export default function HomePage() {
   const [user, setUser] = useState<{ email: string } | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState<FoodItem[] | null>(null)
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null)
   const [currentIntake, setCurrentIntake] = useState({
     calories: 0,
     carbs: 0,
@@ -94,10 +93,6 @@ export default function HomePage() {
     setIsAnalyzing(true)
     
     try {
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file)
-      setUploadedImageUrl(previewUrl)
-
       // Convert file to base64
       const base64 = await new Promise<string>((resolve) => {
         const reader = new FileReader()
@@ -115,17 +110,14 @@ export default function HomePage() {
       if (!response.ok) {
         console.error("Analysis failed:", response.status, response.statusText)
         alert(t("analysisFailed"))
-        setUploadedImageUrl(null)
         return
       }
-
 
       const data = await response.json()
       setAnalysisResult(data.foods)
     } catch (error) {
       console.error("Error analyzing meal:", error)
       alert("Failed to analyze the meal. Please try again.")
-      setUploadedImageUrl(null)
     } finally {
       setIsAnalyzing(false)
     }
@@ -138,24 +130,6 @@ export default function HomePage() {
       const { data: { user: authUser } } = await supabase.auth.getUser()
       if (!authUser) return
 
-      // Upload image to Supabase Storage
-      let imageUrl = null
-      if (uploadedImageUrl) {
-        const response = await fetch(uploadedImageUrl)
-        const blob = await response.blob()
-        const fileName = `${authUser.id}/${Date.now()}.jpg`
-        
-        const { data: uploadData } = await supabase.storage
-          .from("meal-images")
-          .upload(fileName, blob)
-        
-        if (uploadData) {
-          const { data: { publicUrl } } = supabase.storage
-            .from("meal-images")
-            .getPublicUrl(fileName)
-          imageUrl = publicUrl
-        }
-      }
 
       // Aggregate all food items into totals
       const totals = analysisResult.reduce(
@@ -174,7 +148,6 @@ export default function HomePage() {
         .insert({
           user_id: authUser.id,
           meal_name: analysisResult[0]?.name ?? "Meal",
-          image_url: imageUrl,
           calories: totals.calories,
           carbs_g: totals.carbs,
           protein_g: totals.protein,
@@ -188,7 +161,6 @@ export default function HomePage() {
       }
 
       // Update local nutrition state
-
       setCurrentIntake((prev) => ({
         calories: prev.calories + totals.calories,
         carbs: prev.carbs + totals.carbs,
@@ -198,7 +170,6 @@ export default function HomePage() {
 
       // Clear analysis result
       setAnalysisResult(null)
-      setUploadedImageUrl(null)
     } catch (error) {
       console.error("Error saving meal:", error)
       alert("Failed to save the meal. Please try again.")
@@ -207,7 +178,6 @@ export default function HomePage() {
 
   const handleCancelAnalysis = () => {
     setAnalysisResult(null)
-    setUploadedImageUrl(null)
   }
 
   return (
@@ -243,7 +213,6 @@ export default function HomePage() {
                 foods={analysisResult}
                 onConfirm={handleConfirmAnalysis}
                 onCancel={handleCancelAnalysis}
-                imageUrl={uploadedImageUrl || undefined}
               />
             ) : (
               <MealUpload onUpload={handleUpload} isAnalyzing={isAnalyzing} />
