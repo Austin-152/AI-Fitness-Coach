@@ -25,11 +25,19 @@ function NutrientProgress({
   isLoadingTarget,
 }: NutrientProgressProps) {
   const percentage = target > 0 ? Math.min((current / target) * 100, 100) : 0
+  const isExceeded = target > 0 && current > target
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="font-semibold text-foreground">{label}</span>
+        <span className={`flex items-center gap-1.5 font-semibold ${isExceeded ? "text-red-500" : "text-foreground"}`}>
+          {label}
+          {isExceeded && (
+            <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white leading-none">
+              !
+            </span>
+          )}
+        </span>
         <span className="text-sm flex items-center gap-1">
           <span className={textColorClass}>{current}</span>
           <span className="text-muted-foreground"> / </span>

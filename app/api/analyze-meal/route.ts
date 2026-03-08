@@ -1,63 +1,128 @@
-import { generateObject } from "ai"
-import { gateway } from "@ai-sdk/gateway"
-import { z } from "zod"
+import { NextResponse } from "next/server"
+import { GoogleGenAI } from "@google/genai"
 
-const FoodSchema = z.object({
-  name: z.string().describe("Name of the food item"),
-  calories: z.number().describe("Estimated calories in kcal"),
-  carbs: z.number().describe("Estimated carbohydrates in grams"),
-  protein: z.number().describe("Estimated protein in grams"),
-  fats: z.number().describe("Estimated fats in grams"),
-  quantity: z.string().describe("Estimated quantity/portion size"),
-})
+// 1MB
+const MAX_IMAGE_SIZE = 1_000_000
 
-const AnalysisSchema = z.object({
-  foods: z.array(FoodSchema).describe("List of identified food items with nutritional information"),
-})
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY })
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const { image } = await request.json()
+    const { image, locale } = await req.json()
 
     if (!image) {
-      return Response.json({ error: "No image provided" }, { status: 400 })
+      return NextResponse.json(
+          { error: "Image is required" },
+          { status: 400 }
+      )
     }
 
-    const { object } = await generateObject({
-      model: gateway("openai/gpt-4o-mini"),
-      schema: AnalysisSchema,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `Analyze this meal photo and identify all food items visible. For each food item, estimate:
-              1. Name of the food
-              2. Calories (in kcal)
-              3. Carbohydrates (in grams)
-              4. Protein (in grams)
-              5. Fats (in grams)
-              6. Quantity/portion size
+    // 1️⃣ 防止 Base64 过大
+    const size = Buffer.byteLength(image, "utf8")
 
-              Be as accurate as possible with your nutritional estimates based on typical serving sizes.
-              If you cannot identify certain foods, make your best reasonable estimate.`,
+    if (size > MAX_IMAGE_SIZE) {
+      return NextResponse.json(
+          { error: "Image too large. Please compress below 1MB." },
+          { status: 413 }
+      )
+    }
+
+    // 从 data URL 中提取 mimeType 和 base64 数据
+    // 格式: data:<mimeType>;base64,<data>
+    const dataUrlMatch = image.match(/^data:([^;]+);base64,(.+)$/)
+    const mimeType = dataUrlMatch ? dataUrlMatch[1] : "image/jpeg"
+    const base64Data = dataUrlMatch ? dataUrlMatch[2] : image
+
+    // 2️⃣ 调用 Gemini
+    const dishLanguageInstruction =
+      locale === "zh"
+        ? 'The "dish" field MUST be written in Simplified Chinese (简体中文).'
+        : 'The "dish" field MUST be written in English.'
+
+    const geminiResponse = await ai.models.generateContent({
+      model: "gemini-2.5-flash-lite",
+      contents: [
+        {
+          parts: [
+            {
+              inlineData: {
+                mimeType,
+                data: base64Data,
+              },
             },
             {
-              type: "image",
-              image: image,
+              text: `You are a nutrition analysis assistant.
+
+              Analyze the food image carefully.
+              
+              1. Identify all visible food items in the image.
+              2. Estimate each item's portion size.
+              3. Estimate calories, protein, carbs, and fat for the entire meal.
+              
+              If multiple foods are present:
+              - combine the food names into a single dish name using "&".
+              - Example: "fried rice & fries", "steak & mashed potatoes".
+              
+              ${dishLanguageInstruction}
+              
+              Return ONLY valid JSON (no markdown, no explanation).
+              
+              {
+                "dish": "string",
+                "nutrition": {
+                  "calories": number,
+                  "protein_g": number,
+                  "carbs_g": number,
+                  "fat_g": number
+                }
+              }`
             },
           ],
         },
       ],
     })
 
-    return Response.json(object)
+    let content = geminiResponse.text
+
+    if (!content) {
+      throw new Error("AI returned empty response")
+    }
+
+    // 强制 JSON 解析（防 hallucination）
+    let parsed
+
+    try {
+      parsed = JSON.parse(content)
+    } catch {
+      // 尝试提取 JSON
+      const match = content.match(/\{[\s\S]*\}/)
+
+      if (!match) {
+        throw new Error("Invalid JSON from AI")
+      }
+
+      parsed = JSON.parse(match[0])
+    }
+
+    // 统一转换为前端 FoodItem[] 格式
+    const foods = [
+      {
+        name: parsed.dish ?? "Unknown dish",
+        calories: parsed.nutrition?.calories ?? 0,
+        carbs: parsed.nutrition?.carbs_g ?? 0,
+        protein: parsed.nutrition?.protein_g ?? 0,
+        fats: parsed.nutrition?.fat_g ?? 0,
+        quantity: "1 serving",
+      },
+    ]
+
+    return NextResponse.json({ foods })
   } catch (error) {
-    console.error("Error analyzing meal:", error)
-    return Response.json(
-      { error: "Failed to analyze meal" },
-      { status: 500 }
+    console.error("AI analyze error:", error)
+
+    return NextResponse.json(
+        { error: "AI analysis failed" },
+        { status: 500 }
     )
   }
 }

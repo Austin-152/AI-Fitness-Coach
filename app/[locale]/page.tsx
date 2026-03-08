@@ -6,11 +6,12 @@ import { NutritionProgress } from "@/components/nutrition-progress"
 import { MealUpload } from "@/components/meal-upload"
 import { AnalysisResult, FoodItem } from "@/components/analysis-result"
 import { createClient } from "@/lib/supabase/client"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 
 export default function HomePage() {
   //i18n setting
   const t = useTranslations("home")
+  const locale = useLocale()
   const router = useRouter()
   const [user, setUser] = useState<{ email: string } | null>(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -60,42 +61,26 @@ export default function HomePage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         setUser({ email: user.email })
-        await loadTodayNutrition(user.id)
+        await loadTodayNutrition()
       }
     }
     getUser()
   }, [])
 
-  const loadTodayNutrition = async (userId: string) => {
-    const today = new Date().toISOString().split("T")[0]
-    const { data: meals } = await supabase
-      .from("meals")
-      .select("*, foods(*)")
-      .eq("user_id", userId)
-      .gte("created_at", `${today}T00:00:00`)
-      .lte("created_at", `${today}T23:59:59`)
-
-    if (meals && meals.length > 0) {
-      let totalCalories = 0
-      let totalCarbs = 0
-      let totalProtein = 0
-      let totalFats = 0
-
-      meals.forEach((meal) => {
-        meal.foods?.forEach((food: { calories: number; carbs: number; protein: number; fats: number }) => {
-          totalCalories += food.calories || 0
-          totalCarbs += food.carbs || 0
-          totalProtein += food.protein || 0
-          totalFats += food.fats || 0
+  const loadTodayNutrition = async () => {
+    try {
+      const res = await fetch("/api/get-today-nutrition")
+      if (res.ok) {
+        const data = await res.json()
+        setCurrentIntake({
+          calories: data.calories ?? 0,
+          carbs: data.carbs ?? 0,
+          protein: data.protein ?? 0,
+          fats: data.fats ?? 0,
         })
-      })
-
-      setCurrentIntake({
-        calories: totalCalories,
-        carbs: totalCarbs,
-        protein: totalProtein,
-        fats: totalFats,
-      })
+      }
+    } catch (e) {
+      console.error("Failed to fetch today's nutrition:", e)
     }
   }
 
@@ -124,7 +109,7 @@ export default function HomePage() {
       const response = await fetch("/api/analyze-meal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: base64 }),
+        body: JSON.stringify({ image: base64, locale }),
       })
 
       if (!response.ok) {
@@ -172,45 +157,7 @@ export default function HomePage() {
         }
       }
 
-      // Create meal record
-      const { data: meal, error: mealError } = await supabase
-        .from("meals")
-        .insert({
-          user_id: authUser.id,
-          image_url: imageUrl,
-          meal_type: "snack",
-        })
-        .select()
-        .single()
-
-      if (mealError) {
-        console.error("Error creating meal:", mealError)
-        alert(t("saveFailed"))
-        return
-      }
-
-      // Insert food items
-      const foodsToInsert = analysisResult.map((food) => ({
-        meal_id: meal.id,
-        name: food.name,
-        calories: food.calories,
-        carbs: food.carbs,
-        protein: food.protein,
-        fats: food.fats,
-        quantity: food.quantity,
-      }))
-
-      const { error: foodsError } = await supabase
-        .from("foods")
-        .insert(foodsToInsert)
-
-      if (foodsError) {
-        console.error("Error inserting foods:", foodsError)
-        alert("Failed to save the meal. Please try again.")
-        return
-      }
-
-      // Update local nutrition state
+      // Aggregate all food items into totals
       const totals = analysisResult.reduce(
         (acc, food) => ({
           calories: acc.calories + food.calories,
@@ -220,6 +167,27 @@ export default function HomePage() {
         }),
         { calories: 0, carbs: 0, protein: 0, fats: 0 }
       )
+
+      // Insert into meal_entries (one record per meal)
+      const { error: mealError } = await supabase
+        .from("meal_entries")
+        .insert({
+          user_id: authUser.id,
+          meal_name: analysisResult[0]?.name ?? "Meal",
+          image_url: imageUrl,
+          calories: totals.calories,
+          carbs_g: totals.carbs,
+          protein_g: totals.protein,
+          fat_g: totals.fats,
+        })
+
+      if (mealError) {
+        console.error("Error saving meal:", mealError)
+        alert(t("saveFailed"))
+        return
+      }
+
+      // Update local nutrition state
 
       setCurrentIntake((prev) => ({
         calories: prev.calories + totals.calories,
